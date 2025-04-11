@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         HideTwitchOverlays
 // @namespace    https://github.com/NotADucc/HideTwitchOverlays
-// @version      1
-// @description  Hides annoying twitch extensions
+// @version      1.0.1
+// @description  Hides annoying twitch overlays/extensions
 // @author       https://github.com/NotADucc
 // @match        *://*.twitch.tv/*
 // @run-at       document-idle
@@ -21,7 +21,7 @@
                     if (!node.className) {
                         continue;
                     }
-                    if (node.className == 'extension-view__iframe') {
+                    if (node.classList.contains('extension-view__iframe')) {
                         node.remove();
                         observer.disconnect();
                     }
