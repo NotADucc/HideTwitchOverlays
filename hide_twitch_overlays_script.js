@@ -2,7 +2,7 @@
 // @name         HideTwitchOverlays
 // @namespace    https://github.com/NotADucc/HideTwitchOverlays
 // @version      1
-// @description  Hides annoying twitch extensions
+// @description  Hides annoying twitch overlays/extensions
 // @author       https://github.com/NotADucc
 // @match        *://*.twitch.tv/*
 // @run-at       document-idle
