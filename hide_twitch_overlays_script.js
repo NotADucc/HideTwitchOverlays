@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HideTwitchOverlays
 // @namespace    https://github.com/NotADucc/HideTwitchOverlays
-// @version      1.1.0
+// @version      1.1.1
 // @description  Hides annoying twitch overlays/extensions
 // @author       https://github.com/NotADucc
 // @match        *://*.twitch.tv/*
@@ -46,11 +46,19 @@
         iframe_observer.observe(twilight_container, config);
         // pop_up_observer.observe(container, config);
 
+        let max_retries = 30, current_retries = 0;
         const interval = setInterval(() => {
             const osrs_pop_ups = document.querySelector(".Layout-sc-1xcs6mc-0.djGvAr.video-size.passthrough-events");
             if (osrs_pop_ups) {
                 osrs_pop_ups.remove();
+                console.debug(`nuked: pop up`);
                 clearInterval(interval);
+            } else {
+                current_retries++;
+                if (current_retries >= max_retries) {
+                    console.debug(`max retries reached for pop up`);
+                    clearInterval(interval);
+                }
             }
         }, 500);
 
