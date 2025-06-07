@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HideTwitchOverlays
 // @namespace    https://github.com/NotADucc/HideTwitchOverlays
-// @version      1.1.1
+// @version      1.2.1
 // @description  Hides annoying twitch overlays/extensions
 // @author       https://github.com/NotADucc
 // @match        *://*.twitch.tv/*
@@ -11,62 +11,54 @@
 (function(history) {
     'use strict';
     const onContentLoaded = () => {
-        const predicate_iframe = (classList) => classList.contains('extension-view__iframe');
-        const predicate_pop_up = (classList) => classList.contains('Layout-sc-1xcs6mc-0')
-        && classList.contains('djGvAr')
-        && classList.contains('video-size')
-        && classList.contains('passthrough-events');
-        const createCallback = (predicate) => {
-            return (mutationList, observer) => {
-                for (const mutation of mutationList) {
-                    if (mutation.type === "childList") {
-                        for (const node of mutation.addedNodes) {
-                            if (!node.className) {
-                                continue;
-                            }
-                            if (predicate(node.classList)) {
-                                console.debug(`nuked: ${predicate.name}`);
-                                node.remove();
-                                observer.disconnect();
-                            }
-                        }
+        const max_tries = 30, delay = 500;
+
+        const nuke = [
+            {
+                name: "i frame",
+                selector: () => document.querySelector(".extension-view__iframe"),
+                tries_left: max_tries,
+                interval: 0,
+            },
+            {
+                name: "pop up",
+                selector: () => document.querySelector(".passthrough-events"),
+                tries_left: max_tries,
+                interval: 0,
+            },
+            {
+                name: "disclosure pop up",
+                selector: () => document.querySelector(".disclosure-tool"),
+                tries_left: max_tries,
+                interval: 0,
+            },
+        ];
+
+
+        const startNuking = (info) => {
+            const interval = setInterval(() => {
+                const node = info.selector();
+                if (node) {
+                    node.remove();
+                    console.debug(`nuked: ${info.name}`);
+                    clearInterval(info.interval);
+                } else {
+                    info.tries_left--;
+                    if (info.tries_left <= 0) {
+                        console.debug(`max retries reached for ${info.name}`);
+                        clearInterval(info.interval);
                     }
                 }
-            };
-        };
+            }, delay);
 
-        const config = { childList: true, subtree: true };
+            info.interval = interval;
+        }
 
-        const twilight_container = document.querySelector('.twilight-main .scrollable-area');
-        const iframe_observer = new MutationObserver(createCallback(predicate_iframe));
-
-        // const container = document;
-        // const pop_up_observer = new MutationObserver(createCallback(predicate_pop_up));
-
-        iframe_observer.observe(twilight_container, config);
-        // pop_up_observer.observe(container, config);
-
-        let max_retries = 30, current_retries = 0;
-        const interval = setInterval(() => {
-            const osrs_pop_ups = document.querySelector(".passthrough-events");
-            if (osrs_pop_ups) {
-                osrs_pop_ups.remove();
-                console.debug(`nuked: pop up`);
-                clearInterval(interval);
-            } else {
-                current_retries++;
-                if (current_retries >= max_retries) {
-                    console.debug(`max retries reached for pop up`);
-                    clearInterval(interval);
-                }
-            }
-        }, 500);
+        nuke.forEach(startNuking);
 
         window.addEventListener("beforeunload", () => {
             // no clue if this actually works
-            iframe_observer.disconnect();
-            // pop_up_observer.disconnect();
-            clearInterval(interval);
+            nuke.forEach(x => clearInterval(x.interval));
         });
     }
 
