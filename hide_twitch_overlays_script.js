@@ -48,7 +48,7 @@
 
         let max_retries = 30, current_retries = 0;
         const interval = setInterval(() => {
-            const osrs_pop_ups = document.querySelector(".Layout-sc-1xcs6mc-0.djGvAr.video-size.passthrough-events");
+            const osrs_pop_ups = document.querySelector(".passthrough-events");
             if (osrs_pop_ups) {
                 osrs_pop_ups.remove();
                 console.debug(`nuked: pop up`);
