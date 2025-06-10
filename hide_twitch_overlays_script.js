@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         HideTwitchOverlays
 // @namespace    https://github.com/NotADucc/HideTwitchOverlays
-// @version      1.2.1
+// @version      1.2.2
 // @description  Hides annoying twitch overlays/extensions
 // @author       https://github.com/NotADucc
 // @match        *://*.twitch.tv/*
@@ -33,7 +33,6 @@
                 interval: 0,
             },
         ];
-
 
         const startNuking = (info) => {
             const interval = setInterval(() => {
@@ -70,6 +69,12 @@
         onContentLoaded();
         return pushState.apply(history, arguments);
     }
+
+    var replaceState = history.replaceState;
+    history.replaceState = function(state) {
+        onContentLoaded();
+        return replaceState.apply(history, arguments);
+    };
 
     if (document.readyState === "complete" || document.readyState === "loaded" || document.readyState === "interactive") {
         onContentLoaded();
